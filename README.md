@@ -1,6 +1,9 @@
 # ExploreLearning
 
 Responsive webpage built to emulate a screen with dragable icons.
+This repo has two branches that can be viewed. 
+Develop is built with no libraries, just javascript, html, and css.
+Dragable-Library is built using the Vue.Draggable library to support the draging features.
 
 ## Project Setup
 
