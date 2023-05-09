@@ -1,12 +1,8 @@
 <script>
 import Vue from 'vue';
-import MobileAppIcon from './mobile-app-icon.vue';
 
 export default Vue.extend({
     name: 'responsive-icon-grid',
-    components: {
-      MobileAppIcon,
-    },
     props: ['icons'],
     data() {
       return {
