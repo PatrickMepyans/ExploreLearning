@@ -1,181 +1,56 @@
 <script>
 import Vue from 'vue';
+import draggable from 'vuedraggable'
 
 export default Vue.extend({
     name: 'responsive-icon-grid',
-    props: ['icons'],
+    components: {
+      draggable,
+    },
     data() {
       return {
-        draggedIcon: {
-          id: null,
-          src: null,
-          label: null,
-        },
-        hoveredIcon: {
-          id: null,
-          src: null,
-          label: null,
-        },
-        clickTimer: 0,
-        hasCursorMoved: false,
-      };
+        icons: this.generateIconArray(),
+      }
     },
     methods: {
       /*
-       * onIconClickorTouch
-       * params: icon - object
-       * returns: void
+       * generateIconArray
+       * params: None
+       * returns: Array of objects
        * 
-       * This triggers when the user clicks or touches an icon with the grid column.
-       * This is the start of the click/drag sequence, after a data reset it starts a
-       * one second timer. If the cursor hasn't moved after a second the drag sequence 
-       * will begin by setting draggedIcon.
+       * Retreives the icons from the icon fold and returns them as an array of objects.
        *
       */
-      onIconClickorTouch(icon) {
-        this.resetClickTimerAndIcons();
-        this.hasCursorMoved = false;
-        this.clickTimer = setTimeout(() => {
-          if (!this.hasCursorMoved) {
-            this.draggedIcon = icon;
-          }
-        }, 1000);
-      },
-      /*
-       * swapIconPosition
-       * params: event - object
-       * returns: void
-       * 
-       * When a icon being dragged is hovered/placed over another icon they will swap positions in the icon array.
-       * If there is not a hovered and dragged icon it will set cursorMoved to true, and also clear the clicktimer.
-       *
-      */
-      swapIconPosition(event, icon) {
-        event.preventDefault();
-        this.hoveredIcon = icon;
-        if (this.hoveredIcon?.id && this.draggedIcon?.id) {
-          const fromIndex = this.icons.indexOf(this.draggedIcon);
-          const toIndex = this.icons.indexOf(this.hoveredIcon);
-          if (fromIndex !== toIndex) {
-            this.icons.splice(fromIndex, 1);
-            this.icons.splice(toIndex, 0, this.draggedIcon);
-          }
-        }
-        this.hasCursorMoved = true;
-        clearTimeout(this.clickTimer);
-      },
-      /*
-       * clearIconData
-       * params: none
-       * returns: icon - object
-       * 
-       * Returns an empty icon object.
-       *
-      */
-      clearIconData() {
-        return {
-          id: null,
-          src: null,
-          label: null,
-        };
-      },
-      /*
-       * resetClickTimerAndIcons
-       * params: none
-       * returns: void
-       * 
-       * Clears any icon data, and clears the clickTimer timeout.
-       *
-      */
-      resetClickTimerAndIcons() {
-        this.draggedIcon = this.clearIconData();
-        this.hoveredIcon = this.clearIconData();
-        clearTimeout(this.clickTimer);
-      },
-      /*
-       * setHoveredIconUsingLabel
-       * params: labelName - string
-       * returns: object
-       * 
-       * Searches through the icon array using the label property. When found set the
-       * hovered icon equal to it and return it.
-       *
-      */
-      setHoveredIconUsingLabel(labelName) {
-        return this.hoveredIcon = this.icons.find(obj => obj.label === labelName);
-      },
-
-      /*
-       * logCursorMovement
-       * params: none
-       * returns: object
-       * 
-       * Used to determine if the cursor has moved after a click or touch event has begun.
-       * If the cursor moves and the draggedIcon has not been set (it will only get set
-       * one second after clicking) but a hoveredIcon has been detected it will set
-       * cursorMoved to true and clear the timeout. This ensures that the user needs to 
-       * click/touch and hold a second before dragging.
-       *
-      */
-      logCursorMovement() {
-        if (!this.draggedIcon?.id && this.hoveredIcon?.id) {
-          this.hasCursorMoved = true;
-          clearTimeout(this.clickTimer);
-        }
-      },
-      /*
-       * onTouchMove
-       * params: event - object
-       * returns: void
-       * 
-       * Here's the fun stuff.
-       * This is needed due to how click, touch, and drag interact with each other. Touch has no 
-       * drag support built in. Clicking can utilize mouse and drag events together to differentiate
-       * between dragging onto a different icons or ending the drag early/off target.
-       * 
-       * Touchmove does not function like dragover, and won't record the icon beneath it when dragging an icon.
-       * To compensate for this, manual tracking is required. The touch event is used to track the x, y coordinates,
-       * of the cursor and retrieve the element from that DOM location Then it attempts to retrieve the text
-       * from the label if it's a valid target. Once that's retrieved setHoveredIconUsingLabel is used in with 
-       * the label to set the hovered icon value.
-       * 
-       * Cursor movement is logged as the mousemove event will not fire via touch, this is to check against 
-       * the one second hold down. Then if the label is valid a swap will be made. 
-       *
-      */
-      onTouchMove(event) {
-          const targetTouchEvent = event.targetTouches[event.targetTouches.length-1];
-          const domNode = document.elementFromPoint(targetTouchEvent.pageX, targetTouchEvent.pageY);
-          const labelValue = domNode.closest('.icon')?.querySelector('p')?.innerText;
-          const hoveredIcon = this.setHoveredIconUsingLabel(labelValue);
-          this.logCursorMovement();
-
-        if (labelValue) {
-          this.swapIconPosition(event, hoveredIcon);
-        }
+      generateIconArray() {
+        return [
+        { id: 1, src: 'src/assets/icons/gmail.png', label: 'Gmail' },
+        { id: 2, src: 'src/assets/icons/google-apps.png', label: 'Google Apps' },
+        { id: 3, src: 'src/assets/icons/google-chrome.png', label: 'Google Chrome' },
+        { id: 4, src: 'src/assets/icons/google-cloud.png', label: 'Google Cloud' },
+        { id: 5, src: 'src/assets/icons/google-drive.png', label: 'Google Drive' },
+        { id: 6, src: 'src/assets/icons/google-play.png', label: 'Google Play' },
+        { id: 7, src: 'src/assets/icons/microsoft-edge.png', label: 'Microsoft Edge' },
+        ];
       },
     },
+    computed: {
+      dragOptions() {
+        return {
+          delay: 1000,
+          touchStartThreshold: 800,
+        };
+      },
+    }
   });
 </script>
 
 <template>
-  <div class="grid-container">
-    <div 
-      v-for="icon in icons"
-      :key="icon.id"
-      class="icon"
-      :draggable="true"
-      @mousedown="onIconClickorTouch(icon)"
-      @mousemove="logCursorMovement()"
-      @dragover="swapIconPosition($event, icon)"
-      @dragend="swapIconPosition($event, icon)"
-      @touchstart="onIconClickorTouch(icon)"
-      @touchmove="onTouchMove($event)"
-    >
-      <img :src="icon.src" :alt="icon.label"/>
+  <draggable class="grid-container" v-model="icons" group="icon" @start="drag=true" @end="drag=false" v-bind="dragOptions">
+   <div class="icon" v-for="icon in icons" :key="icon.id">
+      <img :src="icon.src"/>
       <p> {{ icon.label }}</p>
     </div>
-  </div>
+  </draggable>
 </template>
 
 <style scoped>
